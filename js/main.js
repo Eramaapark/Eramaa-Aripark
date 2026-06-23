@@ -336,7 +336,24 @@ document.querySelectorAll('.why-item').forEach(item => {
 // ── CONTACT FORM ──
 function handleSubmit(e) {
   e.preventDefault();
+  const form = e.target;
   const success = document.getElementById('form-success');
-  success.classList.add('visible');
-  e.target.querySelectorAll('input, select, textarea').forEach(el => el.value = '');
+  const data = new FormData(form);
+
+  fetch(form.action, {
+    method: 'POST',
+    body: data,
+    headers: { 'Accept': 'application/json' }
+  }).then(response => {
+    if (response.ok) {
+      success.classList.add('visible');
+      form.querySelectorAll('input, select, textarea').forEach(el => el.value = '');
+    } else {
+      response.json().then(d => {
+        alert(d.errors ? d.errors.map(x => x.message).join(', ') : 'Saatmine ebaõnnestus. Palun proovige uuesti.');
+      }).catch(() => alert('Saatmine ebaõnnestus. Palun proovige uuesti.'));
+    }
+  }).catch(() => {
+    alert('Saatmine ebaõnnestus. Palun kontrollige internetiühendust ja proovige uuesti.');
+  });
 }
